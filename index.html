@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ninho — Monitor de Berço</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js"></script>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><span class="brand-icon">🌙</span> Ninho</div>
+    <div class="status-pill" id="statusPill"><span class="dot"></span><span id="statusText">Escolha um modo</span></div>
+  </header>
+
+  <!-- Tela inicial: escolher modo -->
+  <section class="mode-select" id="modeSelect">
+    <h1>Como este aparelho vai ser usado?</h1>
+    <p>Use um aparelho perto do berço (câmera + som) e outro com você, de onde quiser — os dois se conectam pela internet.</p>
+    <div class="mode-cards">
+      <div class="mode-card" id="pickCrib">
+        <div class="emoji">📷</div>
+        <h3>Sou o berço</h3>
+        <p>Fica perto do bebê: câmera, detecção de movimento e o alto-falante que toca sua voz.</p>
+      </div>
+      <div class="mode-card" id="pickParent">
+        <div class="emoji">📱</div>
+        <h3>Sou o responsável</h3>
+        <p>Aparelho que você carrega: vê o vídeo, recebe alertas e pode falar com o bebê.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modo berço -->
+  <main class="hidden" id="cribView">
+    <section class="monitor-panel">
+      <div class="video-frame" id="cribFrame">
+        <svg class="pulse-ring" viewBox="0 0 220 220"><circle class="ring-bg" cx="110" cy="110" r="100"></circle><circle class="ring-fg" id="cribRing" cx="110" cy="110" r="100"></circle></svg>
+        <video id="cribVideo" class="mirror" autoplay muted playsinline></video>
+        <canvas id="captureCanvas" width="80" height="60" style="display:none"></canvas>
+        <div class="roi-overlay" id="roiOverlay"><span class="roi-label">zona observada</span></div>
+        <div class="video-placeholder" id="cribPlaceholder">
+          <p>Código para conectar o responsável:</p>
+          <div class="pairing-code" id="cribCode">------</div>
+          <p id="cribConnState">Ativando câmera…</p>
+        </div>
+        <div class="alert-banner" id="cribAlertBanner">Nenhum movimento detectado na zona observada</div>
+        <audio id="cribRemoteAudio" autoplay></audio>
+      </div>
+      <div class="waveform-strip"><canvas class="wave" id="cribWave"></canvas></div>
+      <div class="controls-row">
+        <button id="calibrateBtn" class="ghost-btn">Ajustar zona de observação</button>
+        <button id="cribMuteBtn" class="ghost-btn">🔊 Som ativado</button>
+      </div>
+    </section>
+    <aside class="side-panel">
+      <div class="panel-block">
+        <h3>Sensibilidade</h3>
+        <input type="range" id="sensitivity" min="1" max="10" value="5">
+        <p class="hint">Quanto maior, mais fácil detectar pequenos movimentos.</p>
+      </div>
+      <div class="panel-block">
+        <h3>Tempo sem movimento até alerta</h3>
+        <input type="range" id="silenceTimeout" min="5" max="60" value="15" step="5">
+        <p class="hint" id="silenceTimeoutLabel">15 segundos</p>
+      </div>
+      <div class="panel-block log-block"><h3>Histórico</h3><ul class="event-log" id="cribLog"></ul></div>
+    </aside>
+  </main>
+
+  <!-- Modo responsável -->
+  <main class="hidden" id="parentView">
+    <section class="monitor-panel">
+      <div class="video-frame" id="parentFrame">
+        <svg class="pulse-ring" viewBox="0 0 220 220"><circle class="ring-bg" cx="110" cy="110" r="100"></circle><circle class="ring-fg" id="parentRing" cx="110" cy="110" r="100"></circle></svg>
+        <video id="parentVideo" autoplay playsinline></video>
+        <div class="video-placeholder" id="parentPlaceholder">
+          <p>Digite o código mostrado no aparelho do berço:</p>
+          <input class="code-input" id="codeInput" maxlength="6" placeholder="------">
+          <button id="connectBtn" class="primary-btn">Conectar</button>
+        </div>
+        <div class="alert-banner" id="parentAlertBanner">Nenhum movimento detectado na zona observada</div>
+      </div>
+      <div class="waveform-strip"><canvas class="wave" id="parentWave"></canvas></div>
+      <div class="controls-row">
+        <button id="talkBtn" class="talk-btn">🎙️ Segure para falar com o bebê</button>
+        <button id="parentMuteBtn" class="ghost-btn">🔊 Som ativado</button>
+      </div>
+    </section>
+    <aside class="side-panel">
+      <div class="panel-block log-block"><h3>Histórico</h3><ul class="event-log" id="parentLog"></ul></div>
+    </aside>
+  </main>
+
+  <footer>
+    <p>Ferramenta de apoio baseada em detecção de movimento por câmera — não é um dispositivo médico certificado e não substitui a supervisão de um adulto responsável. Vídeo e áudio trafegam diretamente entre os dois aparelhos (conexão ponto a ponto); a sinalização inicial usa um serviço público gratuito (PeerJS), sem garantia de disponibilidade.</p>
+  </footer>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
